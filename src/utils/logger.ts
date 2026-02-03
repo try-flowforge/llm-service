@@ -4,6 +4,7 @@ import { loadConfig } from '../config';
 const config = loadConfig();
 
 export const logger = pino({
+  base: null,
   level: config.logLevel,
   transport: config.logLevel === 'development'
     ? {
@@ -11,7 +12,6 @@ export const logger = pino({
         options: {
           colorize: true,
           translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
         },
       }
     : undefined,
