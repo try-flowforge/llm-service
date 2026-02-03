@@ -1,0 +1,48 @@
+{
+  "models": [
+    {
+      "id": "openrouter-qwen-free",
+      "provider": "openrouter",
+      "displayName": "Qwen",
+      "model": "qwen/qwen3-coder:free",
+      "maxInputTokens": 262000,
+      "maxOutputTokens": 262000,
+      "maxTokens": 262000,
+      "supportsJsonMode": true,
+      "costTier": "free"
+    },
+    {
+      "id": "openrouter-glm-free",
+      "provider": "openrouter",
+      "displayName": "GLM",
+      "model": "z-ai/glm-4.5-air:free",
+      "maxInputTokens": 131072,
+      "maxOutputTokens": 96000,
+      "maxTokens": 96000,
+      "supportsJsonMode": true,
+      "costTier": "free"
+    },
+    {
+      "id": "openrouter-deepseek-free",
+      "provider": "openrouter",
+      "displayName": "DeepSeek",
+      "model": "deepseek/deepseek-r1-0528:free",
+      "maxInputTokens": 163840,
+      "maxOutputTokens": 163840,
+      "maxTokens": 163840,
+      "supportsJsonMode": true,
+      "costTier": "free"
+    },
+    {
+      "id": "openai-chatgpt",
+      "provider": "openai",
+      "displayName": "ChatGPT",
+      "model": "gpt-5-nano",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 16384,
+      "maxTokens": 16384,
+      "supportsJsonMode": true,
+      "costTier": "paid"
+    }
+  ]
+}
