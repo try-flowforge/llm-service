@@ -16,6 +16,8 @@ export function loadConfig(): ServiceConfig {
   const hmacSecret = process.env.HMAC_SECRET;
   const openrouterApiKey = process.env.OPENROUTER_API_KEY;
   const openaiApiKey = process.env.OPENAI_API_KEY;
+  const eigencloudApiKey = process.env.EIGENCLOUD_API_KEY;
+  const eigencloudBaseUrl = process.env.EIGENCLOUD_BASE_URL;
   const connectTimeout = process.env.CONNECT_TIMEOUT;
   const requestTimeout = process.env.REQUEST_TIMEOUT;
   const rateLimitPerUser = process.env.RATE_LIMIT_PER_USER;
@@ -29,6 +31,8 @@ export function loadConfig(): ServiceConfig {
     hmacSecret: hmacSecret || requireEnv("HMAC_SECRET"),
     openrouterApiKey: openrouterApiKey || requireEnv("OPENROUTER_API_KEY"),
     openaiApiKey: openaiApiKey || requireEnv("OPENAI_API_KEY"),
+    eigencloudApiKey: eigencloudApiKey || "",
+    eigencloudBaseUrl: eigencloudBaseUrl || "https://eigenai-sepolia.eigencloud.xyz/v1",
     connectTimeout: connectTimeout
       ? parseInt(connectTimeout, 10)
       : requireEnv("CONNECT_TIMEOUT"),

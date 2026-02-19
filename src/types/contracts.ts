@@ -3,7 +3,7 @@
  * Shared types between microservice, backend, and frontend
  */
 
-export type LLMProvider = "openrouter" | "openai";
+export type LLMProvider = "openrouter" | "openai" | "eigencloud";
 
 export interface ModelDefinition {
   id: string;
@@ -41,6 +41,10 @@ export interface ChatCompletionResponse {
   };
   providerRequestId?: string;
   model: string;
+  eigenaiMeta?: {
+    signature?: string;
+    chainId?: number;
+  };
 }
 
 export interface ChatCompletionError {
@@ -61,6 +65,7 @@ export interface HealthResponse {
   providers?: {
     openrouter: boolean;
     openai: boolean;
+    eigencloud: boolean;
   };
 }
 
@@ -96,6 +101,8 @@ export interface ServiceConfig {
   hmacSecret: string;
   openrouterApiKey: string;
   openaiApiKey: string;
+  eigencloudApiKey: string;
+  eigencloudBaseUrl: string;
 
   // Timeouts (ms)
   connectTimeout: number;

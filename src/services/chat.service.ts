@@ -7,6 +7,7 @@ import type {
 import { LLMErrorCode } from "../types/contracts";
 import { OpenAIClient } from "../providers/openai-client";
 import { OpenRouterClient } from "../providers/openrouter-client";
+import { EigenCloudClient } from "../providers/eigencloud-client";
 import { modelCatalog } from "../utils/model-catalog";
 import { jsonValidator } from "../utils/json-validator";
 import { RateLimiter } from "../utils/rate-limiter";
@@ -16,6 +17,7 @@ import { logger } from "../utils/logger";
 export class ChatService {
   private openaiClient?: OpenAIClient;
   private openrouterClient?: OpenRouterClient;
+  private eigencloudClient?: EigenCloudClient;
   private rateLimiter: RateLimiter;
   private concurrencyLimiter: ConcurrencyLimiter;
   private config: ServiceConfig;
@@ -38,6 +40,15 @@ export class ChatService {
         config.requestTimeout,
       );
       logger.info("OpenRouter client initialized");
+    }
+
+    if (config.eigencloudApiKey) {
+      this.eigencloudClient = new EigenCloudClient(
+        config.eigencloudApiKey,
+        config.eigencloudBaseUrl,
+        config.requestTimeout,
+      );
+      logger.info("EigenCloud client initialized");
     }
 
     // Initialize limiters
@@ -182,7 +193,7 @@ export class ChatService {
     }
   }
 
-  private getClient(provider: string): OpenAIClient | OpenRouterClient {
+  private getClient(provider: string): OpenAIClient | OpenRouterClient | EigenCloudClient {
     if (provider === "openai") {
       if (!this.openaiClient) {
         throw this.createError(
@@ -203,6 +214,17 @@ export class ChatService {
         );
       }
       return this.openrouterClient;
+    }
+
+    if (provider === "eigencloud") {
+      if (!this.eigencloudClient) {
+        throw this.createError(
+          LLMErrorCode.PROVIDER_NOT_CONFIGURED,
+          "EigenCloud provider not configured (missing API key)",
+          false,
+        );
+      }
+      return this.eigencloudClient;
     }
 
     throw this.createError(
@@ -235,6 +257,13 @@ export class ChatService {
       }
     }
 
+    if (provider === "eigencloud") {
+      if (model.startsWith("eigencloud:")) {
+        const modelName = model.replace("eigencloud:", "");
+        return `eigencloud-${modelName}`;
+      }
+    }
+
     // Return original if no mapping found (will try provider+model lookup)
     return model;
   }
@@ -255,13 +284,14 @@ export class ChatService {
 
   async healthCheck(): Promise<{
     healthy: boolean;
-    providers: { openai: boolean; openrouter: boolean };
+    providers: { openai: boolean; openrouter: boolean; eigencloud: boolean };
   }> {
     return {
-      healthy: !!(this.openaiClient || this.openrouterClient),
+      healthy: !!(this.openaiClient || this.openrouterClient || this.eigencloudClient),
       providers: {
         openai: !!this.openaiClient,
         openrouter: !!this.openrouterClient,
+        eigencloud: !!this.eigencloudClient,
       },
     };
   }

@@ -43,6 +43,28 @@
       "maxTokens": 16384,
       "supportsJsonMode": true,
       "costTier": "paid"
+    },
+    {
+      "id": "eigencloud-gpt-oss",
+      "provider": "eigencloud",
+      "displayName": "EigenAI GPT-OSS 120B",
+      "model": "gpt-oss-120b-f16",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 4096,
+      "maxTokens": 4096,
+      "supportsJsonMode": false,
+      "costTier": "paid"
+    },
+    {
+      "id": "eigencloud-qwen3",
+      "provider": "eigencloud",
+      "displayName": "EigenAI Qwen3 32B",
+      "model": "qwen3-32b-128k-bf16",
+      "maxInputTokens": 128000,
+      "maxOutputTokens": 4096,
+      "maxTokens": 4096,
+      "supportsJsonMode": false,
+      "costTier": "paid"
     }
   ]
 }
