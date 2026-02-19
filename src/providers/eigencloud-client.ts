@@ -97,17 +97,26 @@ export class EigenCloudClient {
             const message = response.choices?.[0]?.message || {};
 
             let content = message.content || "";
+            const contentType = typeof content;
+            const contentPreview =
+                typeof content === "string"
+                    ? content.slice(0, 300)
+                    : JSON.stringify(content).slice(0, 300);
 
             // Parse JSON if schema was provided
             let parsedJson: Record<string, any> | undefined;
             if (responseSchema && content) {
                 try {
-                    parsedJson = JSON.parse(content);
+                    const normalizedContent =
+                        typeof content === "string" ? content : JSON.stringify(content);
+                    parsedJson = JSON.parse(normalizedContent);
                 } catch (err) {
                     logger.error(
                         {
                             requestId,
                             error: err instanceof Error ? err.message : String(err),
+                            contentType,
+                            contentPreview,
                         },
                         "Failed to parse JSON response from EigenCloud",
                     );
@@ -127,6 +136,9 @@ export class EigenCloudClient {
                     model,
                     latencyMs,
                     hasSignature: !!response.signature,
+                    responseSchemaRequested: !!responseSchema,
+                    contentType,
+                    contentPreview,
                 },
                 "EigenCloud chat request completed",
             );
@@ -150,13 +162,24 @@ export class EigenCloudClient {
             };
         } catch (error) {
             const latencyMs = Date.now() - startTime;
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : (typeof error === "object" && error !== null && "message" in error
+                        ? String((error as { message?: unknown }).message)
+                        : String(error));
+            const errorDetails =
+                typeof error === "object" && error !== null && "details" in error
+                    ? (error as { details?: unknown }).details
+                    : undefined;
             logger.error(
                 {
                     requestId,
                     provider: "eigencloud",
                     model,
                     latencyMs,
-                    error: error instanceof Error ? error.message : String(error),
+                    error: errorMessage,
+                    details: errorDetails,
                 },
                 "EigenCloud chat request failed",
             );

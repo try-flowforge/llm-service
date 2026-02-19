@@ -142,7 +142,24 @@ export class ChatService {
       );
 
       // Validate JSON if schema provided
-      if (responseSchema && response.json) {
+      if (responseSchema) {
+        if (!response.json) {
+          logger.error(
+            {
+              requestId,
+              provider,
+              model,
+              responseTextPreview: response.text?.slice(0, 300) || "",
+            },
+            "Structured response requested but provider returned non-JSON content",
+          );
+          throw this.createError(
+            LLMErrorCode.JSON_PARSE_FAILED,
+            "Structured response requested but provider returned non-JSON content",
+            false,
+          );
+        }
+
         const validation = jsonValidator.validateResponse(
           response.json,
           responseSchema,

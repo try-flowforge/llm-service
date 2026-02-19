@@ -211,6 +211,7 @@ export async function createServer(config: ServiceConfig) {
               userId: request.body.userId,
               error: error.message,
               code: error.code,
+              details: error.details,
               latencyMs,
             },
             "Chat request failed",
@@ -233,6 +234,7 @@ export async function createServer(config: ServiceConfig) {
           {
             requestId: request.body.requestId,
             error: error.message || String(error),
+            stack: error.stack,
             latencyMs,
           },
           "Chat request failed with unknown error",
