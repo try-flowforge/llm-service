@@ -1,4 +1,5 @@
 import { request } from "undici";
+import { createHash } from "crypto";
 import type {
     ChatMessage,
     ChatCompletionResponse,
@@ -60,6 +61,18 @@ export class EigenCloudClient {
 
             const apiUrl = `${this.baseUrl}/chat/completions`;
 
+            // Compute lightweight replay metadata (hashes) for observability
+            const promptHash = createHash("sha256")
+                .update(
+                    JSON.stringify({
+                        model,
+                        messages,
+                        seed: requestBody.seed,
+                        temperature: requestBody.temperature ?? undefined,
+                    }),
+                )
+                .digest("hex");
+
             const {
                 statusCode,
                 headers: _headers,
@@ -103,6 +116,14 @@ export class EigenCloudClient {
                     ? content.slice(0, 300)
                     : JSON.stringify(content).slice(0, 300);
 
+            const responseHash = createHash("sha256")
+                .update(
+                    typeof content === "string"
+                        ? content
+                        : JSON.stringify(content),
+                )
+                .digest("hex");
+
             // Parse JSON if schema was provided
             let parsedJson: Record<string, any> | undefined;
             if (responseSchema && content) {
@@ -139,6 +160,9 @@ export class EigenCloudClient {
                     responseSchemaRequested: !!responseSchema,
                     contentType,
                     contentPreview,
+                    promptHash,
+                    responseHash,
+                    seed: requestBody.seed,
                 },
                 "EigenCloud chat request completed",
             );
