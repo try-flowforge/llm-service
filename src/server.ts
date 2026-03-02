@@ -50,6 +50,7 @@ export async function createServer(config: ServiceConfig) {
     redis,
     max: config.rateLimitPerUser,
     timeWindow: "1 hour",
+    hook: "preValidation",
     keyGenerator: (request) => {
       // Use userId from request body for rate limiting
       const body = request.body as ChatCompletionRequest;
