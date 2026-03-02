@@ -25,6 +25,7 @@ export function loadConfig(): ServiceConfig {
   const maxRetries = process.env.MAX_RETRIES;
   const retryBackoffMs = process.env.RETRY_BACKOFF_MS;
   const logLevel = process.env.LOG_LEVEL;
+  const redisUrl = process.env.REDIS_URL;
 
   return {
     port: port ? parseInt(port, 10) : requireEnv("PORT"),
@@ -52,6 +53,7 @@ export function loadConfig(): ServiceConfig {
       ? parseInt(retryBackoffMs, 10)
       : requireEnv("RETRY_BACKOFF_MS"),
     logLevel: logLevel || requireEnv("LOG_LEVEL"),
+    redisUrl: redisUrl || "redis://localhost:6379",
   };
 }
 

@@ -1,5 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
+import Redis from "ioredis";
 import pino from "pino";
 import type {
   ServiceConfig,
@@ -20,12 +22,12 @@ export async function createServer(config: ServiceConfig) {
       transport:
         config.logLevel === "development"
           ? {
-              target: "pino-pretty",
-              options: {
-                colorize: true,
-                translateTime: "SYS:standard",
-              },
-            }
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+              translateTime: "SYS:standard",
+            },
+          }
           : undefined,
       formatters: {
         level: (label) => ({ level: label }),
@@ -40,6 +42,32 @@ export async function createServer(config: ServiceConfig) {
   // CORS
   await fastify.register(cors, {
     origin: false, // Internal service, no CORS needed
+  });
+
+  // Rate limiting
+  const redis = new Redis(config.redisUrl);
+  await fastify.register(rateLimit, {
+    redis,
+    max: config.rateLimitPerUser,
+    timeWindow: "1 hour",
+    keyGenerator: (request) => {
+      // Use userId from request body for rate limiting
+      const body = request.body as ChatCompletionRequest;
+      return body?.userId || request.ip;
+    },
+    errorResponseBuilder: (_request, context) => {
+      return {
+        success: false,
+        error: {
+          code: LLMErrorCode.RATE_LIMIT_EXCEEDED,
+          message: `Rate limit exceeded. Try again in ${context.after}.`,
+          details: {
+            limit: context.max,
+            ttl: context.ttl,
+          },
+        },
+      };
+    },
   });
 
   // Initialize chat service

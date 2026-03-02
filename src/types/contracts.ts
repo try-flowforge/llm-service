@@ -103,6 +103,7 @@ export interface ServiceConfig {
   openaiApiKey: string;
   eigencloudApiKey: string;
   eigencloudBaseUrl: string;
+  redisUrl: string;
 
   // Timeouts (ms)
   connectTimeout: number;
